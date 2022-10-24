@@ -306,6 +306,10 @@ class XrayCloudClient {
     async downloadCucumberFeatures(config) {		
         if (config.featuresPath === undefined || config.featuresPath === "")
             throw new XrayErrorResponse("ERROR: features path must be specified");
+        if (fs.existsSync(config.featuresPath)) {
+            // Deleting featuresPath content before downloading, may include a Y/N user response handler
+            fs.rmSync(config.featuresPath, { recursive: true, force: true });
+        }
 
         if ((config.keys === undefined) && (config.filter === undefined))
             throw new XrayErrorResponse("ERROR: XRay keys or filter must be defined");
@@ -409,6 +413,7 @@ class XrayCloudClient {
             });
         }).then(function(response) {
             clearTimeout(timeoutFn);
+            fs.rmSync('./tmp', { recursive: true, force: true });
             return new XrayCloudResponseV2(response);      
         }).catch(function(error) {
             if (error.response !== undefined)
