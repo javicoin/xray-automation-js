@@ -9,6 +9,8 @@ import XrayCloudGraphQLErrorResponse from './xray-cloud-graphql-error-response.j
 import { XRAY_FORMAT, JUNIT_FORMAT, TESTNG_FORMAT, ROBOT_FORMAT, NUNIT_FORMAT, XUNIT_FORMAT, CUCUMBER_FORMAT, BEHAVE_FORMAT } from './index.js';
 import AdmZip from 'adm-zip';
 import arrayBufferToBuffer from 'arraybuffer-to-buffer';
+import * as dotenv from 'dotenv';
+dotenv.config()
 
 /*
 // import { request, GraphQLClient } from 'graphql-request'
@@ -31,12 +33,14 @@ class XrayCloudClient {
     supportedFormats = [ XRAY_FORMAT, JUNIT_FORMAT, TESTNG_FORMAT, ROBOT_FORMAT, NUNIT_FORMAT, XUNIT_FORMAT, CUCUMBER_FORMAT, BEHAVE_FORMAT ];
 
     constructor(xraySettings) {
-        this.clientId = xraySettings.clientId;
-        this.clientSecret = xraySettings.clientSecret;
-        if (xraySettings.timeout !== undefined)
-            this.timeout = xraySettings.timeout;
-        else
-            this.timeout = 50000;
+        const clientId = (xraySettings === undefined) ? process.env.JIRA_CLOUD_CLIENT_ID : xraySettings.clientId;
+        const clientSecret = (xraySettings === undefined) ? process.env.JIRA_CLOUD_CLIENT_SECRET : xraySettings.clientSecret;
+        if (clientId === undefined || clientSecret === undefined)
+            throw new Error("ERROR: JIRA Cloud credentials not provided!\nDefine them on 'jira.cloud.json' or by the environment variables 'JIRA_CLOUD_CLIENT_ID' & 'JIRA_CLOUD_CLIENT_SECRET'");
+
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.timeout = 20000;
         axios.defaults.timeout = this.timeout;
     }
 
