@@ -316,7 +316,7 @@ class XrayCloudClient {
         if (fs.existsSync(config.featuresPath)) {
             // Prepare features backup directory
             const backupDirectory = `${config.featuresPath}_backup`;
-            FilesHelper.prepareBackupDirectory(backupDirectory);
+            FilesHelper.prepareBackupDirectory(backupDirectory, false);
             // Moving feature file into backup directory
             const featureFiles = FilesHelper.getFiles(config.featuresPath, 'feature');
             featureFiles.forEach(file => fs.renameSync(file, path.join(backupDirectory, path.basename(file))));
