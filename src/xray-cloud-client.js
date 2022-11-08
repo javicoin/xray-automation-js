@@ -1,6 +1,8 @@
-import { GraphQLClient, gql } from 'graphql-request'
+import FilesHelper from 'wdio-common/helpers/utils/file-helper.js';
+import { GraphQLClient, gql } from 'graphql-request';
 import axios from 'axios';
 import fs from 'fs';
+import path from 'path';
 import FormData from 'form-data';
 import XrayErrorResponse from './xray-error-response.js';
 import XrayCloudResponseV2 from './xray-cloud-response-v2.js';
@@ -310,8 +312,15 @@ class XrayCloudClient {
     async downloadCucumberFeatures(config) {		
         if (config.featuresPath === undefined || config.featuresPath === "")
             throw new XrayErrorResponse("ERROR: features path must be specified");
+        
         if (fs.existsSync(config.featuresPath)) {
-            // Deleting featuresPath content before downloading, may include a Y/N user response handler
+            // Prepare features backup directory
+            const backupDirectory = `${config.featuresPath}_backup`;
+            FilesHelper.prepareBackupDirectory(backupDirectory);
+            // Moving feature file into backup directory
+            const featureFiles = FilesHelper.getFiles(config.featuresPath, 'feature');
+            featureFiles.forEach(file => fs.renameSync(file, path.join(backupDirectory, path.basename(file))));
+            // Deleting featuresPath content before downloading features from Jira
             fs.rmSync(config.featuresPath, { recursive: true, force: true });
         }
 
