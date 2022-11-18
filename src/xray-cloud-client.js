@@ -87,7 +87,7 @@ class XrayCloudClient {
             if (![ XRAY_FORMAT, CUCUMBER_FORMAT, BEHAVE_FORMAT ].includes(config.format)) {
 
                 if ((config.projectKey === undefined) && (config.testExecKey === undefined)) {
-                    throw new XrayErrorResponse('ERROR: projectKey or testExecKey must be defined');
+                    throw new XrayErrorResponse('ERROR: projectKey or testExecKey must be defined (config file)');
                 }
                 if (config.projectKey !== undefined) {
                     params.projectKey = config.projectKey;
@@ -140,13 +140,13 @@ class XrayCloudClient {
 
     async submitResultsMultipart(reportPath, config) {		
         if (config.format === undefined)
-            throw new XrayErrorResponse("ERROR: format must be specified");
+            throw new XrayErrorResponse("ERROR: format must be specified (config file)");
 
         if (!this.supportedFormats.includes(config.format))
             throw new XrayErrorResponse("ERROR: unsupported format " + config.format);
 
         if ((config.testExecInfoFile === undefined) && (config.testExecInfo === undefined))
-            throw new XrayErrorResponse("ERROR: testExecInfoFile or testExecInfo must be defined");
+            throw new XrayErrorResponse("ERROR: testExecInfoFile or testExecInfo must be defined (config file)");
 
         // use a CancelToken as the timeout setting is not reliable
         const cancelTokenSource = axios.CancelToken.source();
@@ -311,7 +311,7 @@ class XrayCloudClient {
 
     async downloadCucumberFeatures(config) {		
         if (config.featuresPath === undefined || config.featuresPath === "")
-            throw new XrayErrorResponse("ERROR: features path must be specified");
+            throw new XrayErrorResponse("ERROR: features path must be specified (config file)");
         
         if (fs.existsSync(config.featuresPath)) {
             // Prepare features backup directory
@@ -325,7 +325,7 @@ class XrayCloudClient {
         }
 
         if ((config.keys === undefined) && (config.filter === undefined))
-            throw new XrayErrorResponse("ERROR: XRay keys or filter must be defined");
+            throw new XrayErrorResponse("ERROR: XRay keys or filter must be defined (config file)");
 
         // use a CancelToken as the timeout setting is not reliable
         const cancelTokenSource = axios.CancelToken.source();
@@ -382,11 +382,13 @@ class XrayCloudClient {
     }
 
     async uploadCucumberFeatures(config) {		
-        if (config.projectKey === undefined || config.projectKey === "")
-            throw new XrayErrorResponse("ERROR: project key must be specified");
+        if (config.testExecInfo === undefined)
+            throw new XrayErrorResponse("ERROR: testExecInfo must be defined (config file)");
+        if (config.testExecInfo.fields.project.key === undefined)
+            throw new XrayErrorResponse("ERROR: project key must be specified (config file)");
 
         if (config.featuresPath === undefined || config.featuresPath === "")
-            throw new XrayErrorResponse("ERROR: features path must be specified");
+            throw new XrayErrorResponse("ERROR: features path must be specified (config file)");
         
         // use a CancelToken as the timeout setting is not reliable
         const cancelTokenSource = axios.CancelToken.source();
@@ -402,7 +404,7 @@ class XrayCloudClient {
             var authToken = response.data;          
             return authToken;
         }).then( authToken => {
-            const endpointUrl = xrayCloudBaseUrl + "/import/feature?projectKey=" + config.projectKey;
+            const endpointUrl = xrayCloudBaseUrl + "/import/feature?projectKey=" + config.testExecInfo.fields.project.key;
             const zipFile = new AdmZip();
             let featuresData = new FormData();
             try {

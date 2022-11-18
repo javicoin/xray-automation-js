@@ -66,10 +66,6 @@ export async function uploadCucumberFeatures(config) {
             else if (error.body !== undefined)
                 throw new Error(error.body.error);
             else
-                throw new Error(error.message);  
+                throw new Error(error.message || error._response);  
         });
 }
-
-// module.exports.submitCucumberTestResults =  submitCucumberTestResults;
-// module.exports.downloadCucumberFeatures =  downloadCucumberFeatures;
-// module.exports.uploadCucumberFeatures =  uploadCucumberFeatures;
