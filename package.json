@@ -1,14 +1,9 @@
 {
   "name": "@xray-app/xray-automation",
   "version": "0.2.0",
-  "description": "Library for uploading test results to Xray Test Management",
+  "description": "Library for downloading/uploading tests (cucumber) & uploading test results to Xray Test Management",
   "type": "module",
   "main": "src/index.js",
-  "bin": {
-    "cucumber:download_features": "npx run-func src/helpers/xray-helper.js downloadCucumberFeatures $cucumberConfig",
-    "cucumber:upload_features": "npx run-func src/helpers/xray-helper.js uploadCucumberFeatures $cucumberConfig",
-    "cucumber:submit_results": "npx run-func src/helpers/xray-helper.js submitCucumberTestResults $mergedOutputReport $cucumberMultipartConfig"
-  },
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "lint": "eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern '__tests__/*.spec.js' --ignore-pattern src/config/",
@@ -39,7 +34,6 @@
     "btoa": "^1.2.1",
     "dotenv": "^16.0.3",
     "form-data": "^4.0.0",
-    "run-func": "^3.0.0",
     "graphql": "^16.3.0",
     "graphql-request": "^4.1.0",
     "promise-retry": "^2.0.1",
