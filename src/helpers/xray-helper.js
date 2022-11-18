@@ -52,7 +52,7 @@ export async function uploadCucumberFeatures(config) {
     return xrayClient.uploadCucumberFeatures(cucumberConfig)
         .then( function(response) {
             const tests = (response._response.data.updatedOrCreatedTests.map( ({key}) => key ));
-            console.log('\nFeatures successfully created/updated in Jira project ' + cucumberConfig.projectKey);
+            console.log('\nFeatures successfully created/updated in Jira project ' + cucumberConfig.testExecInfo.fields.project.key);
             console.log(tests.sort());
             if (response._response.data.errors !== undefined && (response._response.data.errors).length) {
                 console.log('\nErrors when uploading features...');
