@@ -148,6 +148,7 @@ To import results with customization possibilities, which internally will use th
 | `testExecInfo` | JSON object containing attributes to apply on the Test Execution issue that will be created, following Jira issue update syntax | mandatory (if testExecInfoFile is not provided) | - |
 | `testInfoFile` | path to a JSON file containing attributes to apply on the Test issues that may be created, following Jira issue update syntax | optional | - |
 | `testInfo` | JSON object containing attributes to apply on the Test issues that may be created, following Jira issue update syntax | optional | - |
+| `jiraBrowseBaseUrl` | Jira “browse” base URL for **console logs only** when using `src/helpers/xray-helper.js` (see below). Not read by `submitResultsMultipart` and not sent to Xray. | optional | `https://myorg.atlassian.net/browse/` |
 
 ```javascript
 import { XrayDatacenterClient, XrayCloudClient, JUNIT_FORMAT } from '@xray-app/xray-automation'
@@ -169,11 +170,25 @@ let multipartConfig = {
     // testInfo: testInfoJson,
     testExecInfoFile: 'testExecInfo.json',
     // testExecInfo: testExecInfoJson,
+    // jiraBrowseBaseUrl: 'https://myorg.atlassian.net/browse/', // optional; helper logs only (see next section)
 }
 
-let res = await xrayClient.submitResultsMultipart(file: reportFile, config: multipartConfig);
+let res = await xrayClient.submitResultsMultipart(reportFile, multipartConfig);
 console.log('Test Execution key: ' + res.key);
 ```
+
+### Helper utilities (`xray-helper.js`) and Jira URLs in logs
+
+`src/helpers/xray-helper.js` provides convenience wrappers around `XrayCloudClient` (for example merging Cucumber JSON reports, reading multipart settings from a JSON file, and optional Browserstack evidence updates). Those helpers log human-readable messages when a Test Execution is created or updated.
+
+To print a full Jira browse URL in those logs (instead of only the issue key), set optional **`jiraBrowseBaseUrl`** on the **same** multipart JSON file you pass to `submitTestResults` or `submitCucumberTestResults` (the `config` path argument). Use your site’s browse prefix, for example `https://myorg.atlassian.net/browse/` (a trailing slash is optional). The field is **not** used by the Xray import API; you can keep it in that file for pipeline-specific configuration.
+
+For **`updateTestRunEvidence`**, supply the base URL in either of these ways:
+
+- Second argument: `updateTestRunEvidence('path/to/evidence.json', { jiraBrowseBaseUrl: 'https://myorg.atlassian.net/browse/' })`
+- Or the same property on the test evidence JSON object (`jiraBrowseBaseUrl`), if you prefer a single file for CI.
+
+If `jiraBrowseBaseUrl` is omitted, the helpers log the issue key only.
 
 ### Associate Test Execution to Test Plan
 
@@ -237,33 +252,6 @@ In [Xray documentation](https://docs.getxray.app/display/XRAYCLOUD/Integrations)
 
 Sometimes teams may want to manage the logic for uploading test results (e.g., after finishing some task/event). This library can be useful in those scenarios, if you're using JavaScript and NodeJS.
 
-## Contact
-
-You may find me on [Twitter](https://twitter.com/darktelecom).
-Any questions related with this code, please raise issues in this GitHub project. Feel free to contribute and submit PR's.
-For Xray specific questions, please contact [Xray's support team](https://jira.getxray.app/servicedesk/customer/portal/2).
-
-## Disclaimer
-
-This project is in early stage; the setting names and other are subject to change.
-
-## Acknowledgments
-
-TBD
-
-## TO DOs
-
-- implement cucumber related operations/endpoints
-- timeout configuration for GraphQL requests
-- review/refactor tests
-- prettier and eslint-config-prettier?
-- REST API v1 support?
-- review error handling
-- review modules support
-- convert to TypeScript
-
-## [Changelog](CHANGELOG.md)
-
 ## References
 
 - [Importing test results (Xray server/datacenter)](https://docs.getxray.app/display/XRAY/Import+Execution+Results+-+REST)
@@ -274,7 +262,3 @@ TBD
 - [Export Cucumber tests (Xray cloud)](https://docs.getxray.app/display/XRAYCLOUD/Exporting+Cucumber+Tests+-+REST+v2)
 - [Using Personal Access Tokens (Xray datacenter)](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html)
 - [API keys (client id + client secret pair) on Xray cloud](https://docs.getxray.app/display/XRAYCLOUD/Global+Settings%3A+API+Keys)
-
-## LICENSE
-
-[BSD 3-Clause](LICENSE)
